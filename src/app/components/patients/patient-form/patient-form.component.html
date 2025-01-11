@@ -1,0 +1,105 @@
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-person-plus-fill me-2"></i>
+                {{ isEditing ? 'Editar' : 'Nuevo' }} Paciente
+            </h5>
+        </div>
+
+        <div class="card-body">
+            @if (loading) {
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+            }
+
+            @if (error) {
+            <div class="alert alert-danger">
+                {{ error }}
+            </div>
+            }
+
+            <form [formGroup]="patientForm" (ngSubmit)="onSubmit()">
+                <!-- Nombre -->
+                <div class="mb-3">
+                    <label for="name" class="form-label">Nombre completo *</label>
+                    <input type="text" class="form-control" id="name" formControlName="name"
+                        [class.is-invalid]="nameControl?.invalid && (nameControl?.dirty || nameControl?.touched)">
+                    @if (nameControl?.invalid && (nameControl?.dirty || nameControl?.touched)) {
+                    <div class="invalid-feedback">
+                        El nombre es requerido y debe tener al menos 3 caracteres
+                    </div>
+                    }
+                </div>
+
+                <!-- RUT -->
+                <div class="mb-3">
+                    <label for="rut" class="form-label">RUT *</label>
+                    <input type="text" class="form-control" id="rut" formControlName="rut" placeholder="12345678-9"
+                        [class.is-invalid]="rutControl?.invalid && (rutControl?.dirty || rutControl?.touched)">
+                    @if (rutControl?.invalid && (rutControl?.dirty || rutControl?.touched)) {
+                    <div class="invalid-feedback">
+                        Ingrese un RUT válido (Ejemplo: 12345678-9)
+                    </div>
+                    }
+                </div>
+
+                <!-- Fecha de Nacimiento -->
+                <div class="mb-3">
+                    <label for="dateOfBirth" class="form-label">Fecha de Nacimiento *</label>
+                    <input type="date" class="form-control" id="dateOfBirth" formControlName="dateOfBirth"
+                        [class.is-invalid]="dateOfBirthControl?.invalid && (dateOfBirthControl?.dirty || dateOfBirthControl?.touched)">
+                    @if (dateOfBirthControl?.invalid && (dateOfBirthControl?.dirty || dateOfBirthControl?.touched)) {
+                    <div class="invalid-feedback">
+                        La fecha de nacimiento es requerida
+                    </div>
+                    }
+                </div>
+
+                <!-- Historial Médico -->
+                <div class="mb-3">
+                    <label for="medicalHistory" class="form-label">Historial Médico *</label>
+                    <textarea class="form-control" id="medicalHistory" formControlName="medicalHistory" rows="3"
+                        [class.is-invalid]="medicalHistoryControl?.invalid && (medicalHistoryControl?.dirty || medicalHistoryControl?.touched)">
+            </textarea>
+                    @if (medicalHistoryControl?.invalid && (medicalHistoryControl?.dirty ||
+                    medicalHistoryControl?.touched)) {
+                    <div class="invalid-feedback">
+                        El historial médico es requerido
+                    </div>
+                    }
+                </div>
+
+                <!-- Número de Habitación -->
+                <div class="mb-3">
+                    <label for="roomNumber" class="form-label">Número de Habitación *</label>
+                    <input type="text" class="form-control" id="roomNumber" formControlName="roomNumber"
+                        [class.is-invalid]="roomNumberControl?.invalid && (roomNumberControl?.dirty || roomNumberControl?.touched)">
+                    @if (roomNumberControl?.invalid && (roomNumberControl?.dirty || roomNumberControl?.touched)) {
+                    <div class="invalid-feedback">
+                        El número de habitación es requerido
+                    </div>
+                    }
+                </div>
+
+                <div class="mb-3">
+                    <small class="text-muted">* Campos requeridos</small>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-secondary" (click)="cancel()">
+                        <i class="bi bi-x-circle me-2"></i>
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary" [disabled]="loading">
+                        <i class="bi bi-save me-2"></i>
+                        {{ isEditing ? 'Actualizar' : 'Guardar' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

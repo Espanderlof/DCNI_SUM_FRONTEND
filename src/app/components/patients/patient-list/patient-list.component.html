@@ -1,0 +1,93 @@
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-people-fill me-2"></i>
+                Gestión de Pacientes
+            </h5>
+            <button class="btn btn-light" routerLink="/patients/new">
+                <i class="bi bi-person-plus-fill me-2"></i>
+                Nuevo Paciente
+            </button>
+        </div>
+
+        <div class="card-body">
+            <!-- Buscador -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control" [(ngModel)]="searchTerm" (ngModelChange)="search()"
+                            placeholder="Buscar por nombre, RUT o habitación...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensaje de carga -->
+            @if (loading) {
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+            }
+
+            <!-- Mensaje de error -->
+            @if (error) {
+            <div class="alert alert-danger">
+                {{ error }}
+            </div>
+            }
+
+            <!-- Tabla de pacientes -->
+            @if (!loading && filteredPatients.length > 0) {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>RUT</th>
+                            <th>Fecha Nacimiento</th>
+                            <th>Habitación</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (patient of filteredPatients; track patient.id) {
+                        <tr>
+                            <td>{{ patient.name }}</td>
+                            <td>{{ patient.rut }}</td>
+                            <td>{{ patient.dateOfBirth | date:'dd/MM/yyyy' }}</td>
+                            <td>{{ patient.roomNumber }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-info me-1" (click)="viewDetails(patient)">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-primary me-1" (click)="editPatient(patient)">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" (click)="deletePatient(patient.id!)">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-info me-1" [routerLink]="['/patients', patient.id, 'vital-signs']">
+                                        <i class="bi bi-heart-pulse-fill"></i>
+                                    </button>
+
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            } @else if (!loading && filteredPatients.length === 0) {
+            <div class="alert alert-info">
+                No se encontraron pacientes.
+            </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,191 @@
+<div class="container mt-4">
+    <!-- Mensaje de carga -->
+    @if (loading) {
+    <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+    }
+
+    <!-- Mensaje de error -->
+    @if (error) {
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
+    }
+
+    @if (patient) {
+    <div class="row">
+        <!-- Información del Paciente -->
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person-vcard me-2"></i>
+                        Información del Paciente
+                    </h5>
+                    <div>
+                        <button class="btn btn-light me-2" (click)="viewVitalSigns()">
+                            <i class="bi bi-heart-pulse me-2"></i>
+                            Signos Vitales
+                        </button>
+                        <button class="btn btn-light" (click)="editPatient()">
+                            <i class="bi bi-pencil me-2"></i>
+                            Editar
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4">Nombre:</dt>
+                                <dd class="col-sm-8">{{ patient.name }}</dd>
+
+                                <dt class="col-sm-4">RUT:</dt>
+                                <dd class="col-sm-8">{{ patient.rut }}</dd>
+
+                                <dt class="col-sm-4">Fecha de Nacimiento:</dt>
+                                <dd class="col-sm-8">{{ patient.dateOfBirth | date:'dd/MM/yyyy' }}</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4">Habitación:</dt>
+                                <dd class="col-sm-8">{{ patient.roomNumber }}</dd>
+
+                                <dt class="col-sm-4">Historial Médico:</dt>
+                                <dd class="col-sm-8">{{ patient.medicalHistory }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signos Vitales Recientes -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-activity me-2"></i>
+                        Últimos Signos Vitales
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (vitalSigns.length === 0) {
+                    <div class="alert alert-info">
+                        No hay registros de signos vitales.
+                    </div>
+                    } @else {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Tipo</th>
+                                    <th>Valor</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (sign of vitalSigns.slice(0, 5); track sign.id) {
+                                <tr>
+                                    <td>{{ sign.timestamp | date:'short' }}</td>
+                                    <td>FC</td>
+                                    <td [class.text-danger]="isOutOfRange(sign.heartRate, 'heartRate')">
+                                        {{ sign.heartRate }} lpm
+                                    </td>
+                                    <td>
+                                        @if (isOutOfRange(sign.heartRate, 'heartRate')) {
+                                        <span class="badge bg-danger">Fuera de Rango</span>
+                                        } @else {
+                                        <span class="badge bg-success">Normal</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>{{ sign.timestamp | date:'short' }}</td>
+                                    <td>PA</td>
+                                    <td [class.text-danger]="isOutOfRange(sign.bloodPressureSystolic, 'bloodPressureSystolic') || 
+                                                 isOutOfRange(sign.bloodPressureDiastolic, 'bloodPressureDiastolic')">
+                                        {{ sign.bloodPressureSystolic }}/{{ sign.bloodPressureDiastolic }} mmHg
+                                    </td>
+                                    <td>
+                                        @if (isOutOfRange(sign.bloodPressureSystolic, 'bloodPressureSystolic') ||
+                                        isOutOfRange(sign.bloodPressureDiastolic, 'bloodPressureDiastolic')) {
+                                        <span class="badge bg-danger">Fuera de Rango</span>
+                                        } @else {
+                                        <span class="badge bg-success">Normal</span>
+                                        }
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Alertas Recientes -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0 text-dark">
+                        <i class="bi bi-bell-fill me-2"></i>
+                        Alertas Recientes
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (alerts.length === 0) {
+                    <div class="p-3">
+                        <div class="alert alert-info mb-0">
+                            No hay alertas recientes.
+                        </div>
+                    </div>
+                    } @else {
+                    <div class="list-group list-group-flush">
+                        @for (alert of alerts; track alert.id) {
+                        <div class="list-group-item border-start border-4"
+                            [class]="'border-' + getAlertColor(alert.alertType)">
+                            <div class="d-flex align-items-start">
+                                <div class="alert-icon me-3">
+                                    <i
+                                        [class]="'bi fs-4 text-' + getAlertColor(alert.alertType) + ' ' + getAlertIcon(alert.alertType)"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="mb-0 fw-bold" [class]="'text-' + getAlertColor(alert.alertType)">
+                                            {{ getAlertTypeLabel(alert.alertType) }}
+                                        </h6>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span
+                                                [class]="'badge rounded-pill ' + getSeverityBadgeClass(alert.severity)">
+                                                Severidad {{ getSeverityLabel(alert.severity) }}
+                                            </span>
+                                            <span class="badge rounded-pill" [class.bg-danger]="alert.isActive"
+                                                [class.bg-success]="!alert.isActive">
+                                                {{ alert.isActive ? 'Activa' : 'Resuelta' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <p class="mb-1">{{ alert.description }}</p>
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock me-1"></i>
+                                        {{ alert.timestamp | date:'dd/MM/yyyy HH:mm' }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>

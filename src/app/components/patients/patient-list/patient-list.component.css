@@ -1,0 +1,17 @@
+.table {
+    th {
+        background-color: #f8f9fa;
+    }
+}
+
+.btn-group {
+    .btn {
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+.input-group {
+    .input-group-text {
+        background-color: white;
+    }
+}

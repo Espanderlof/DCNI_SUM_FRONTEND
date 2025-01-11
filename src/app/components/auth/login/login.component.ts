@@ -29,7 +29,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Verificar si ya está logueado
     if (this.azureAuthService.isLoggedInWithAzure()) {
-      this.router.navigate(['/alerts']);
+      this.router.navigate(['/']);
       return;
     }
 
@@ -62,7 +62,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       next: (profile) => {
         console.log('Perfil de Azure obtenido:', profile);
         this.azureAuthService.saveProfile(profile);
-        this.router.navigate(['/alerts']);
+        this.router.navigate(['/']);
       },
       error: (error: Error) => {
         console.error('Error al obtener perfil de Azure:', error);

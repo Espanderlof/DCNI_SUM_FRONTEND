@@ -5,9 +5,9 @@ import { CommonModule } from '@angular/common';
   selector: 'app-alerts',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './alerts.component.html',
-  styleUrls: ['./alerts.component.scss']
+  templateUrl: './alert-list.component.html',
+  styleUrls: ['./alert-list.component.css']
 })
-export class AlertsComponent {
+export class AlertListComponent {
   
 }

@@ -1,0 +1,20 @@
+.table {
+    th {
+        background-color: #f8f9fa;
+    }
+}
+
+.form-control::-webkit-outer-spin-button,
+.form-control::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.form-control[type=number] {
+    -moz-appearance: textfield;
+}
+
+.badge {
+    font-size: 0.8rem;
+    padding: 0.5em 0.8em;
+}

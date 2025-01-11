@@ -1,0 +1,164 @@
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-4">Dashboard de Alertas Médicas</h1>
+        </div>
+    </div>
+
+    <!-- Estadísticas principales -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">Alertas Activas</h6>
+                            <h2 class="mb-0">{{ activeAlerts }}</h2>
+                        </div>
+                        <i class="bi bi-bell-fill fs-1 opacity-50"></i>
+                    </div>
+                    <small class="text-white-50">De un total de {{ totalAlerts }} alertas</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">Alertas Críticas</h6>
+                            <h2 class="mb-0">{{ criticalAlerts }}</h2>
+                        </div>
+                        <i class="bi bi-heart-pulse-fill fs-1 opacity-50"></i>
+                    </div>
+                    <small class="text-white-50">Requieren atención inmediata</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">Pacientes Monitoreados</h6>
+                            <h2 class="mb-0">{{ patientsWithAlerts }}</h2>
+                        </div>
+                        <i class="bi bi-people-fill fs-1 opacity-50"></i>
+                    </div>
+                    <small class="text-white-50">De {{ totalPatients }} pacientes totales</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enlaces rápidos -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Acciones Rápidas</h5>
+                    <div class="d-flex gap-2">
+                        <a routerLink="/alert-manager" class="btn btn-primary">
+                            <i class="bi bi-gear-fill me-2"></i>
+                            Gestionar Alertas
+                        </a>
+                        <a routerLink="/patients" class="btn btn-secondary">
+                            <i class="bi bi-people-fill me-2"></i>
+                            Ver Pacientes
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertas Recientes -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-bell-fill me-2 text-warning"></i>
+                            Alertas Recientes
+                        </h5>
+                        <a routerLink="/alerts" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-arrow-right me-1"></i>
+                            Ver todas
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (loading) {
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                    </div>
+                    } @else if (error) {
+                    <div class="alert alert-danger">{{ error }}</div>
+                    } @else if (alerts.length === 0) {
+                    <div class="alert alert-info">No hay alertas activas</div>
+                    } @else {
+                    <div class="list-group list-group-flush">
+                        @for (alert of alerts.slice(0, 5); track alert.id) {
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="ms-2 me-auto">
+                                    <div class="d-flex align-items-center mb-1">
+                                        @switch (alert.alertType) {
+                                        @case ('ABNORMAL_HEART_RATE') {
+                                        <i class="bi bi-heart-pulse-fill text-danger me-2 fs-5"></i>
+                                        <span class="text-danger fw-bold">Frecuencia Cardíaca</span>
+                                        }
+                                        @case ('ABNORMAL_BLOOD_PRESSURE') {
+                                        <i class="bi bi-activity text-warning me-2 fs-5"></i>
+                                        <span class="text-warning fw-bold">Presión Arterial</span>
+                                        }
+                                        @case ('ABNORMAL_TEMPERATURE') {
+                                        <i class="bi bi-thermometer-half text-primary me-2 fs-5"></i>
+                                        <span class="text-primary fw-bold">Temperatura</span>
+                                        }
+                                        @case ('LOW_OXYGEN_SATURATION') {
+                                        <i class="bi bi-lungs text-info me-2 fs-5"></i>
+                                        <span class="text-info fw-bold">Saturación de Oxígeno</span>
+                                        }
+                                        }
+                                    </div>
+                                    <p class="mb-1">{{ alert.description }}</p>
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock me-1"></i>
+                                        {{ alert.timestamp | date:'dd/MM/yyyy HH:mm' }}
+                                    </small>
+                                </div>
+                                <div class="d-flex flex-column align-items-end">
+                                    <span class="badge" [class.bg-danger]="alert.isActive === false"
+                                        [class.bg-success]="alert.isActive === true">
+                                        {{ alert.isActive === false ? 'Activa' : 'Resuelta' }}
+                                    </span>
+                                    <!-- Información del paciente usando patientId -->
+                                    @for (patient of patients; track patient.id) {
+                                    @if (patient.id === alert.id) {
+                                    <small class="mt-2 text-muted">
+                                        <i class="bi bi-person me-1"></i>
+                                        {{ patient.name }}
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="bi bi-door-closed me-1"></i>
+                                        Habitación {{ patient.roomNumber }}
+                                    </small>
+                                    }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

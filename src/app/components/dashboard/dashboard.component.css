@@ -1,0 +1,21 @@
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+
+    &:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        transition: box-shadow 0.3s ease-in-out;
+    }
+}
+
+.table {
+    margin-bottom: 0;
+
+    th {
+        font-weight: 500;
+        border-top: none;
+    }
+}
+
+.badge {
+    padding: 0.5em 0.75em;
+}

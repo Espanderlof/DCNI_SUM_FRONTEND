@@ -1,0 +1,112 @@
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-bell-fill me-2"></i>
+                Mantenedor de Alertas
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <!-- Filtros -->
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control" [(ngModel)]="searchTerm"
+                            placeholder="Buscar por paciente o descripción...">
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <select class="form-select" [(ngModel)]="statusFilter">
+                        <option value="ALL">Todos los estados</option>
+                        <option value="ACTIVE">Activas</option>
+                        <option value="RESOLVED">Resueltas</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <select class="form-select" [(ngModel)]="typeFilter">
+                        <option value="ALL">Todos los tipos</option>
+                        <option value="HEART_RATE">Frecuencia Cardíaca</option>
+                        <option value="BLOOD_PRESSURE">Presión Arterial</option>
+                        <option value="TEMPERATURE">Temperatura</option>
+                        <option value="OXYGEN">Saturación de Oxígeno</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Mensaje de carga -->
+            @if (loading) {
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+            }
+
+            <!-- Mensaje de error -->
+            @if (error) {
+            <div class="alert alert-danger">
+                {{ error }}
+            </div>
+            }
+
+            <!-- Lista de alertas -->
+            @if (!loading && getFilteredAlerts().length > 0) {
+            <div class="row">
+                @for (alert of getFilteredAlerts(); track alert.id) {
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100" [class.border-danger]="!alert.isActive"
+                        [class.border-success]="alert.isActive">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h5 class="card-title">
+                                        <i [class]="'bi me-2 ' + getTypeIcon(alert.alertType)"></i>
+                                        {{ getTypeLabel(alert.alertType) }}
+                                    </h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">
+                                        Paciente: {{ getPatientName(alert.patient.id) }}
+                                    </h6>
+                                </div>
+                                <span [class]="'badge ' + (!alert.isActive ? 'bg-danger' : 'bg-success')">
+                                    {{ !alert.isActive ? 'Activa' : 'Resuelta' }}
+                                  </span>
+                            </div>
+
+                            <p class="card-text">{{ alert.description }}</p>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    Creada: {{ alert.timestamp | date:'dd/MM/yyyy HH:mm' }}
+                                </small>
+
+                                <div class="btn-group">
+                                    @if (!alert.isActive) {
+                                    <button class="btn btn-success btn-sm" (click)="resolveAlert(alert)">
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        Resolver
+                                    </button>
+                                    }
+                                    <button class="btn btn-danger btn-sm" (click)="deleteAlert(alert)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+            } @else if (!loading && getFilteredAlerts().length === 0) {
+            <div class="alert alert-info">
+                No se encontraron alertas.
+            </div>
+            }
+        </div>
+    </div>
+</div>
