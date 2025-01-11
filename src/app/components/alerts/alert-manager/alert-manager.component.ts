@@ -38,8 +38,10 @@ export class AlertManagerComponent implements OnInit {
             this.loading = true;
             this.error = '';
 
-            const alerts = await this.alertService.getActiveAlerts().toPromise();
-            this.alerts = alerts || [];
+            const alerts = await this.alertService.getAllAlerts().toPromise();
+            this.alerts = (alerts || []).sort((a, b) => 
+                new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            );
 
             // Cargar información de pacientes
             const patientIds = new Set(this.alerts.map(alert => alert.patient.id!));

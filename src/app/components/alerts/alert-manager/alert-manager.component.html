@@ -31,10 +31,10 @@
                 <div class="col-md-4 mb-3">
                     <select class="form-select" [(ngModel)]="typeFilter">
                         <option value="ALL">Todos los tipos</option>
-                        <option value="HEART_RATE">Frecuencia Cardíaca</option>
-                        <option value="BLOOD_PRESSURE">Presión Arterial</option>
-                        <option value="TEMPERATURE">Temperatura</option>
-                        <option value="OXYGEN">Saturación de Oxígeno</option>
+                        <option value="ABNORMAL_HEART_RATE">Frecuencia Cardíaca</option>
+                        <option value="ABNORMAL_BLOOD_PRESSURE">Presión Arterial</option>
+                        <option value="ABNORMAL_TEMPERATURE">Temperatura</option>
+                        <option value="LOW_OXYGEN_SATURATION">Saturación de Oxígeno</option>
                     </select>
                 </div>
             </div>
@@ -60,8 +60,8 @@
             <div class="row">
                 @for (alert of getFilteredAlerts(); track alert.id) {
                 <div class="col-md-6 mb-3">
-                    <div class="card h-100" [class.border-danger]="!alert.isActive"
-                        [class.border-success]="alert.isActive">
+                    <div class="card h-100" [class.border-danger]="alert.isActive"
+                        [class.border-success]="!alert.isActive">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
@@ -73,9 +73,9 @@
                                         Paciente: {{ getPatientName(alert.patient.id) }}
                                     </h6>
                                 </div>
-                                <span [class]="'badge ' + (!alert.isActive ? 'bg-danger' : 'bg-success')">
-                                    {{ !alert.isActive ? 'Activa' : 'Resuelta' }}
-                                  </span>
+                                <span [class]="'badge ' + (alert.isActive ? 'bg-danger' : 'bg-success')">
+                                    {{ alert.isActive ? 'Activa' : 'Resuelta' }}
+                                </span>
                             </div>
 
                             <p class="card-text">{{ alert.description }}</p>
@@ -84,18 +84,18 @@
                                 <small class="text-muted">
                                     Creada: {{ alert.timestamp | date:'dd/MM/yyyy HH:mm' }}
                                 </small>
-
+                            
+                                @if (alert.isActive) {
                                 <div class="btn-group">
-                                    @if (!alert.isActive) {
                                     <button class="btn btn-success btn-sm" (click)="resolveAlert(alert)">
                                         <i class="bi bi-check-circle me-1"></i>
                                         Resolver
                                     </button>
-                                    }
                                     <button class="btn btn-danger btn-sm" (click)="deleteAlert(alert)">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
+                                }
                             </div>
                         </div>
                     </div>

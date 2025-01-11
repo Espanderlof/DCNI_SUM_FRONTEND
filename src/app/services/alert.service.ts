@@ -26,4 +26,8 @@ export class AlertService {
     deleteAlert(alertId: number): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/${alertId}`);
     }
+
+    getAllAlerts(): Observable<Alert[]> {
+        return this.http.get<Alert[]>(`${this.baseUrl}/all`);
+    }
 }
