@@ -1,0 +1,16 @@
+.card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.alert {
+    margin-bottom: 1rem;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.alert-heading {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
