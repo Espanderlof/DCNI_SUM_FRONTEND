@@ -4,6 +4,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AzureAuthService, UserProfile } from '../../../services/azure-auth.service';
 import { AuthStateService } from '../../../services/auth-state.service';
+import { AlertsStateService } from '../../../services/alerts-state.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -16,12 +17,15 @@ import { Subscription } from 'rxjs';
 export class NavbarComponent implements OnInit, OnDestroy {
   isLoggedIn = false;
   userProfile: UserProfile | null = null;
+  activeAlertsCount = 0;
   private readonly platformId = inject(PLATFORM_ID);
   private profileSubscription?: Subscription;
+  private activeAlertsSubscription?: Subscription;
 
   constructor(
     private azureAuthService: AzureAuthService,
     private authStateService: AuthStateService,
+    private alertsStateService: AlertsStateService,
     private router: Router
   ) {}
 
@@ -31,8 +35,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.profileSubscription = this.authStateService.userProfile$.subscribe(profile => {
         this.userProfile = profile;
         this.isLoggedIn = !!profile;
+  
+        // Suscribirse al conteo de alertas cuando el usuario está logueado
+        if (this.isLoggedIn) {
+          // Inicializar la suscripción a alertas o refrescar
+          this.activeAlertsSubscription = this.alertsStateService.activeAlertsCount$
+            .subscribe(count => {
+              this.activeAlertsCount = count;
+            });
+          
+          // Forzar la carga inicial de alertas
+          this.alertsStateService.refreshActiveAlertsCount();
+        }
       });
-
+  
       // Verificar estado inicial
       this.checkLoginStatus();
     }
@@ -70,5 +86,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.profileSubscription?.unsubscribe();
+    this.activeAlertsSubscription?.unsubscribe();
   }
 }
