@@ -10,16 +10,14 @@ export const environment = {
     },
     msalConfig: {
         auth: {
-            clientId: '817eaf26-9869-4d26-8e71-d2713298ddd7',
-            authority: 'https://DCNGP6.b2clogin.com/DCNGP6.onmicrosoft.com/B2C_1_DCNGP6_LOGIN/v2.0',
-            knownAuthorities: ['DCNGP6.b2clogin.com'],
+            clientId: 'f43a15d0-f8b8-42c0-b0cb-4aba49f94958',
+            authority: 'https://login.microsoftonline.com/common',
             redirectUri: 'http://localhost:4200/login',
             postLogoutRedirectUri: 'http://localhost:4200/login',
-            navigateToLoginRequestUrl: true
         }
     },
     apiConfig: {
-        scopes: ['https://DCNGP6.onmicrosoft.com/817eaf26-9869-4d26-8e71-d2713298ddd7/access_as_user'],
-        uri: 'http://localhost:8081/api/auth/perfil'
+        scopes: ['User.Read'],
+        uri: 'https://graph.microsoft.com/v1.0/me',
     }
 };

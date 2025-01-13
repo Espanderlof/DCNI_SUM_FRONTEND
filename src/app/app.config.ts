@@ -9,6 +9,7 @@ import {
   PublicClientApplication,
   BrowserCacheLocation,
   LogLevel,
+  InteractionType
 } from '@azure/msal-browser';
 
 import {
@@ -18,8 +19,8 @@ import {
   MsalService,
   MsalGuard,
   MsalBroadcastService,
+  MsalInterceptorConfiguration,
 } from '@azure/msal-angular';
-
 
 import { AuthInterceptor } from './services/auth.interceptor';
 import { environment } from '../environment/environment';
@@ -41,6 +42,19 @@ export function MSALInstanceFactory(): IPublicClientApplication {
   });
 }
 
+export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
+  const protectedResourceMap = new Map<string, Array<string>>();
+  protectedResourceMap.set(
+    environment.apiConfig.uri,
+    environment.apiConfig.scopes
+  );
+
+  return {
+    interactionType: InteractionType.Redirect,
+    protectedResourceMap,
+  };
+}
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
@@ -53,17 +67,15 @@ export const appConfig: ApplicationConfig = {
     {
       provide: MSAL_GUARD_CONFIG,
       useValue: {
-        interactionType: 'redirect'
+        interactionType: InteractionType.Redirect,
+        authRequest: {
+          scopes: environment.apiConfig.scopes
+        }
       }
     },
     {
       provide: MSAL_INTERCEPTOR_CONFIG,
-      useValue: {
-        interactionType: 'redirect',
-        protectedResourceMap: new Map([
-          [environment.apiConfig.uri, environment.apiConfig.scopes]
-        ])
-      }
+      useFactory: MSALInterceptorConfigFactory,
     },
     MsalService,
     MsalGuard,

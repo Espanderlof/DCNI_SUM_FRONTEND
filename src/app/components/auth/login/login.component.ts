@@ -3,9 +3,15 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { AzureAuthService } from '../../../services/azure-auth.service';
 import { MsalService, MsalBroadcastService } from '@azure/msal-angular';
-import { AuthenticationResult, EventMessage, EventType } from '@azure/msal-browser';
+import { 
+  AuthenticationResult, 
+  EventMessage, 
+  EventType, 
+  InteractionStatus 
+} from '@azure/msal-browser';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
+import { environment } from '../../../../environment/environment';
 
 @Component({
   selector: 'app-login',
@@ -27,7 +33,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Verificar si ya está logueado
     if (this.azureAuthService.isLoggedInWithAzure()) {
       this.router.navigate(['/']);
       return;
@@ -43,17 +48,36 @@ export class LoginComponent implements OnInit, OnDestroy {
           next: (result: EventMessage) => {
             console.log('Login successful');
             const payload = result.payload as AuthenticationResult;
+            
+            // Guardar tanto el accessToken como el idToken
             if (payload.idToken) {
-              console.log('Token received, saving...');
               this.azureAuthService.saveToken(payload.idToken);
-              this.getAzureProfile();
             }
+            
+            this.getAzureProfile();
           },
           error: (error: Error) => {
             console.error('Error en evento de login:', error);
             this.errorMessage = 'Error al procesar el inicio de sesión';
           }
         });
+
+      // Monitorear el estado de interacción
+      this.msalBroadcastService.inProgress$
+        .pipe(
+          filter((status: InteractionStatus) => status === InteractionStatus.None),
+          takeUntil(this._destroying$)
+        )
+        .subscribe(() => {
+          this.checkAndSetActiveAccount();
+        });
+    }
+  }
+
+  private checkAndSetActiveAccount(): void {
+    const activeAccount = this.msalService.instance.getActiveAccount();
+    if (!activeAccount && this.msalService.instance.getAllAccounts().length > 0) {
+      this.msalService.instance.setActiveAccount(this.msalService.instance.getAllAccounts()[0]);
     }
   }
 
@@ -73,14 +97,15 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   loginWithAzure(): void {
     if (isPlatformBrowser(this.platformId)) {
+      const request = {
+        scopes: environment.apiConfig.scopes,
+        prompt: 'select_account',
+        extraScopesToConsent: environment.apiConfig.scopes // Forzar consentimiento
+      };
+  
       this.msalService.initialize().subscribe({
         next: () => {
-          this.msalService.loginRedirect().subscribe({
-            error: (error: Error) => {
-              console.error('Error iniciando sesión con Azure:', error);
-              this.errorMessage = 'Error al iniciar sesión con Azure';
-            }
-          });
+          this.msalService.loginRedirect(request);
         },
         error: (error: Error) => {
           console.error('Error inicializando MSAL:', error);

@@ -90,10 +90,10 @@ export class AzureAuthService {
 
     const token = this.getToken();
     if (!token) {
-      throw new Error('No hay token disponible');
+      throw new Error('No hay token de acceso disponible');
     }
 
-    return this.http.get(environment.apiConfig.uri, {
+    return this.http.get(environment.apis.alertas.endpoints.perfilAzure, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
