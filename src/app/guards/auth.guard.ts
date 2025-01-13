@@ -6,7 +6,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   const azureAuthService = inject(AzureAuthService);
   const router = inject(Router);
 
-  if (azureAuthService.isLoggedInWithAzure()) {
+  if (azureAuthService.isLoggedIn()) {
     return true;
   }
 

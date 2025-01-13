@@ -2,10 +2,8 @@ export const environment = {
     production: false,
     apis: {
         alertas: {
-            baseUrl: 'http://localhost:8081/api',
-            endpoints: {
-                perfilAzure: 'http://localhost:8081/api/auth/perfil',
-            }
+            //baseUrl: 'http://localhost:8081/api',
+            baseUrl: 'https://cpt4dn0wrl.execute-api.us-east-1.amazonaws.com/api'
         }
     },
     msalConfig: {

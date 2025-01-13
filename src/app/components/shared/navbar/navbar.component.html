@@ -50,27 +50,16 @@
                         data-bs-toggle="dropdown">
                         <i class="bi bi-person-circle me-2 fs-5"></i>
                         <div>
-                            <div class="fw-bold">{{ userProfile?.nombreParaMostrar }}</div>
-                            <div class="small text-light-emphasis">{{ userProfile?.nombre }} {{ userProfile?.apellidos
-                                }}</div>
+                            <div class="fw-bold">{{ userInfo?.name }}</div>
+                            <div class="small text-light-emphasis">{{ userInfo?.username }}</div>
                         </div>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
                             <div class="dropdown-header">
                                 <div class="text-muted">
-                                    <i class="bi bi-envelope me-2"></i>{{ userProfile?.email }}
+                                    <i class="bi bi-envelope me-2"></i>{{ userInfo?.username }}
                                 </div>
-                                @if (userProfile?.telefono) {
-                                <div class="text-muted mt-1">
-                                    <i class="bi bi-telephone me-2"></i>{{ userProfile?.telefono }}
-                                </div>
-                                }
-                                @if (userProfile?.direccion) {
-                                <div class="text-muted mt-1">
-                                    <i class="bi bi-geo-alt me-2"></i>{{ userProfile?.direccion }}
-                                </div>
-                                }
                             </div>
                         </li>
                         <li>
