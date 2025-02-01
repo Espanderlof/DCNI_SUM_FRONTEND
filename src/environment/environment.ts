@@ -3,7 +3,7 @@ export const environment = {
     apis: {
         alertas: {
             //baseUrl: 'http://localhost:8081/api',
-            baseUrl: 'https://cpt4dn0wrl.execute-api.us-east-1.amazonaws.com/api'
+            baseUrl: 'https://skqrgml9lg.execute-api.us-east-1.amazonaws.com/api'
         }
     },
     msalConfig: {
