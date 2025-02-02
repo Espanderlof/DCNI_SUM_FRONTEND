@@ -3,9 +3,12 @@ import { CommonModule } from '@angular/common';
 import { AlertService } from '../../../services/alert.service';
 import { AlertsStateService } from '../../../services/alerts-state.service';
 import { PatientService } from '../../../services/patient.service';
+import { BlobService } from '../../../services/blob.service';
 import { Alert } from '../../../interfaces/alert.interface';
 import { Patient } from '../../../interfaces/patient.interface';
+import { BlobFile } from '../../../interfaces/blob-file.interface';
 import { AlertTypes } from '../../../types/alert-types';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-alerts',
@@ -19,15 +22,20 @@ export class AlertListComponent implements OnInit {
   patientMap = new Map<number, Patient>();
   loading = false;
   error = '';
+  files: BlobFile[] = [];
+  loadingFiles = false;
+  fileError = '';
 
   constructor(
     private alertService: AlertService,
     private alertsStateService: AlertsStateService,
-    private patientService: PatientService
+    private patientService: PatientService,
+    private blobService: BlobService
   ) { }
 
   ngOnInit(): void {
     this.loadActiveAlerts();
+    this.loadFiles();
   }
 
   async loadActiveAlerts(): Promise<void> {
@@ -39,7 +47,7 @@ export class AlertListComponent implements OnInit {
       const alerts = await this.alertService.getActiveAlerts().toPromise();
       this.activeAlerts = (alerts || [])
         .filter(alert => alert.isActive)
-        .sort((a, b) => 
+        .sort((a, b) =>
           new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
         );
 
@@ -126,5 +134,59 @@ export class AlertListComponent implements OnInit {
       console.error('Error attending alert:', err);
       this.error = 'Error al atender la alerta';
     }
-}
+  }
+
+  async loadFiles(): Promise<void> {
+    try {
+      this.loadingFiles = true;
+      this.fileError = '';
+      const files = await firstValueFrom(this.blobService.getFiles());
+      // Ordenar por fecha de modificación descendente
+      this.files = files.sort((a, b) =>
+        new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime()
+      );
+    } catch (err) {
+      console.error('Error loading files:', err);
+      this.fileError = 'Error al cargar los archivos';
+    } finally {
+      this.loadingFiles = false;
+    }
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  async downloadFile(file: BlobFile): Promise<void> {
+    try {
+      const blob = await firstValueFrom(this.blobService.downloadFile(file.name));
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = file.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error downloading file:', err);
+      this.fileError = 'Error al descargar el archivo';
+    }
+  }
+
+  async deleteFile(file: BlobFile): Promise<void> {
+    if (confirm(`¿Está seguro de eliminar el archivo ${file.name}?`)) {
+      try {
+        await firstValueFrom(this.blobService.deleteFile(file.name));
+        await this.loadFiles();
+      } catch (err) {
+        console.error('Error deleting file:', err);
+        this.fileError = 'Error al eliminar el archivo';
+      }
+    }
+  }
 }

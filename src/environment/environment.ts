@@ -4,6 +4,9 @@ export const environment = {
         alertas: {
             //baseUrl: 'http://localhost:8081/api',
             baseUrl: 'https://skqrgml9lg.execute-api.us-east-1.amazonaws.com/api'
+        },
+        blobs: {
+            baseUrl: 'http://172.210.177.28:8085/api/blobs'
         }
     },
     msalConfig: {
